@@ -407,10 +407,9 @@ def describir(tb: pd.DataFrame, rs: dict) -> str:
             um = rs.get("ultimo_mes")
             if um is not None and int(b["Año"]) == um.year and um.month < 12 and len(tb) >= 3:
                 a, b = tb.iloc[-3], tb.iloc[-2]
-                partes.append(f"{int(tb.iloc[-1]['Año'])} está incompleto (hasta {mes(um)}); se comparan los dos últimos años completos.")
+                partes.append(f"{int(tb.iloc[-1]['Año'])} tiene datos hasta {mes(um)}.")
             if a[vcol]:
-                partes.append(f"Entre {int(a['Año'])} y {int(b['Año'])} la variación es de {num((b[vcol] / a[vcol] - 1) * 100, 1)}%.")
-    partes.append("_Modo básico: para preguntas libres activa el modo IA con una clave de Anthropic._")
+                partes.append(f"Variación {int(a['Año'])}–{int(b['Año'])}: {num((b[vcol] / a[vcol] - 1) * 100, 1)}%.")
     return "  \n".join(partes)
 
 
@@ -600,8 +599,8 @@ def render_input(df_filtrado: pd.DataFrame, df_total: pd.DataFrame) -> None:
                 st.button(ej, key=f"asist_ej_{i}", on_click=_cb_ejemplo, args=(ej,), **_BTN_TEXTO)
         if st.session_state["asist_hist"]:
             st.caption("El resultado se muestra en la sección principal, arriba de las pestañas.")
-        st.caption(("🟢 Modo IA activo (Claude). " if key else "⚪ Modo básico por reglas. ")
-                   + "Las cifras salen de agregaciones sobre los datos; al modelo solo se envían tablas resumidas, sin identificadores.")
+        if key:
+            st.caption("Modo IA activo. Solo se envían tablas resumidas, sin identificadores.")
         if not key:
             with st.popover("Activar modo IA", **STRETCH):
                 st.text_input("Clave de API de Anthropic", type="password", key="asist_key",
